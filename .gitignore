@@ -1,0 +1,115 @@
+# -------------------------
+# Python Bytecode & Cache
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -------------------------
+# Virtual environment
+# -------------------------
+env/
+venv/
+.venv/
+.env/                  # if you use a folder for env
+ENV/
+
+# -------------------------
+# Python packaging/build
+# -------------------------
+*.egg
+*.egg-info/
+*.egg-info/*
+dist/
+build/
+wheels/
+*.whl
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# -------------------------
+# Logs / Reports / Coverage
+# -------------------------
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.cache/
+.cache/
+htmlcov/
+.coverage
+.coverage.*
+.coverage.*
+coverage.xml
+nosetests.xml
+coverage.xml
+*.cover
+pytestdebug.log
+
+# -------------------------
+# IDE/Editor
+# -------------------------
+# VS Code
+.vscode/
+# PyCharm, IntelliJ
+.idea/
+# JetBrains
+*.iml
+
+# Sublime
+*.sublime-workspace
+*.sublime-project
+
+# -------------------------
+# OS generated
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Jupyter Notebook
+# -------------------------
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# -------------------------
+# Data & Model Artifacts
+# -------------------------
+data/
+data_raw/
+data_processed/
+models/
+models_output/
+*.h5
+*.pkl
+*.pt
+*.ckpt
+*.joblib
+*.npz
+*.npy
+*.csv
+*.tsv
+
+# -------------------------
+# Environment / Config
+# -------------------------
+.env
+*.env
+.env.local
+.env.*.local
+config/*.local
+config/*.tmp
+
+# -------------------------
+# Machine Learning / Deep Learning
+# -------------------------
+# TensorFlow / PyTorch caches and logs
+tensorboard_logs/
+events.out.tfevents.*
+
+# -------------------------
+# Custom Patterns
+# -------------------------
+# Add any directory or file patterns specific to your project
