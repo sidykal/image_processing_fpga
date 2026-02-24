@@ -77,7 +77,7 @@ Thumbs.db
 # -------------------------
 # Data & Model Artifacts
 # -------------------------
-data/
+#data/
 data_raw/
 data_processed/
 models/

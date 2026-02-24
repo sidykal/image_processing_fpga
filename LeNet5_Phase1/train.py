@@ -8,7 +8,7 @@ from model import ModifiedLeNet5
 import os
 
 # --- Configuration ---
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 LEARNING_RATE = 0.0005
 EPOCHS = 35
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
