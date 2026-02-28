@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ModifiedLeNet5(nn.Module):
-    def __init__(self, num_classes=43):
+    def __init__(self, num_classes=4):
         super(ModifiedLeNet5, self).__init__()
         
         # --- Layer 1: Convolution ---
