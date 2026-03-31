@@ -37,7 +37,7 @@ def write_header(f, name, tensor):
 def export():
     print(f"Loading {MODEL_PATH}...")
     device = torch.device("cpu")
-    model = ModifiedLeNet5(num_classes=43)
+    model = ModifiedLeNet5(num_classes=4)
     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
     model.eval()
 
