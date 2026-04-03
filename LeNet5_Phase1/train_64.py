@@ -6,13 +6,13 @@ from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 import os
 import xml.etree.ElementTree as ET
-from model import ModifiedLeNet5
+from model_64 import LeNet5_64
 
 
 # --- Configuration ---
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 LEARNING_RATE = 0.0001
-EPOCHS = 35
+EPOCHS = 100
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 DATA_DIR = "./data"
@@ -80,7 +80,7 @@ class RoadSignDataset(Dataset):
 
 def get_dataloaders():
     transform = transforms.Compose([
-        transforms.Resize((32, 32)),
+        transforms.Resize((64, 64)),
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
@@ -101,7 +101,7 @@ def get_dataloaders():
 def train():
     train_loader, test_loader = get_dataloaders()
 
-    model = ModifiedLeNet5(num_classes=len(train_loader.dataset.dataset.class_to_idx)).to(DEVICE)
+    model = LeNet5_64(num_classes=len(train_loader.dataset.dataset.class_to_idx)).to(DEVICE)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -139,8 +139,8 @@ def train():
               f"Loss: {running_loss/len(train_loader):.4f} "
               f"| Accuracy: {accuracy:.2f}%")
 
-    torch.save(model.state_dict(), "lenet5_traffic.pth")
-    print("Model saved as lenet5_traffic.pth")
+    torch.save(model.state_dict(), "64_lenet5_traffic.pth")
+    print("Model saved as 64_lenet5_traffic.pth")
 
 
 if __name__ == "__main__":
