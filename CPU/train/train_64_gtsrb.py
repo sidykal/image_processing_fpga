@@ -4,7 +4,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 import os
-from model_64 import LeNet5_64
+from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
 import torchvision
 
 
@@ -24,10 +24,7 @@ ANNOTATIONS_DIR = os.path.join(DATA_PATH, "annotations")
 
 def get_dataloaders():
     transform = transforms.Compose([
-        transforms.Resize((72, 72)),
-        transforms.RandomCrop((64, 64)),
-        transforms.RandomRotation(10),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3),
+        transforms.Resize((64, 64)),
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))

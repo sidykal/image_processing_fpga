@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import os
-from model import ModifiedLeNet5
+from image_processing_fpga.LeNet5_Phase1.models.model import ModifiedLeNet5
 
 # Output file name
 OUTPUT_HEADER = "parameters.h"

@@ -4,7 +4,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-from model import ModifiedLeNet5
+from image_processing_fpga.LeNet5_Phase1.models.model import ModifiedLeNet5
 import os
 
 # --- Configuration ---

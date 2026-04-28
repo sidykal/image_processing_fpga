@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 import os
 import xml.etree.ElementTree as ET
-from model_64 import LeNet5_64
+from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
 
 
 # --- Configuration ---

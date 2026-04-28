@@ -6,7 +6,7 @@ import platform
 import cv2
 from PIL import Image
 import torchvision.transforms as transforms
-from model_64 import LeNet5_64
+from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
 import torch.nn.functional as F
 
 # --- CONFIGURATION ---

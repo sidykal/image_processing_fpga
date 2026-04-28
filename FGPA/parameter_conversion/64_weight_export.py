@@ -64,7 +64,7 @@ def export(model):
     print(f"Done -> {OUT_FILE} generated")
 
 if __name__ == "__main__":
-    from model_64 import LeNet5_64
+    from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
 
     model = LeNet5_64(num_classes=NUM_CLASSES)
 

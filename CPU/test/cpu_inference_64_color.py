@@ -3,11 +3,16 @@ import time
 import sys
 import os
 import platform
+import cv2
+import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
-from model_64 import LeNet5_64
+from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
 from collections import defaultdict
 import torch.nn.functional as F
+
+DEBUG_DIR = "debug_outputs"
+os.makedirs(DEBUG_DIR, exist_ok=True)
 
 # images folder 
 IMAGES_DIR = "./images"
@@ -58,21 +63,117 @@ def load_system():
         
     return model, device
 
+def crop_sign_region(image_path, debug=False):
+    img = cv2.imread(image_path)
+
+    if img is None:
+        print(f"Error: could not read {image_path}")
+        sys.exit(1)
+
+    # OpenCV loads BGR, convert to RGB for easier logic
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    R = img_rgb[:, :, 0]
+    G = img_rgb[:, :, 1]
+    B = img_rgb[:, :, 2]
+
+    # Simple traffic-sign color masks
+    R = img_rgb[:, :, 0].astype(np.int16)
+    G = img_rgb[:, :, 1].astype(np.int16)
+    B = img_rgb[:, :, 2].astype(np.int16)
+
+    max_channel = np.maximum(np.maximum(R, G), B)
+    min_channel = np.minimum(np.minimum(R, G), B)
+
+    red_mask = (
+        (R > 120) &
+        (R > G * 1.35) &
+        (R > B * 1.35) &
+        ((max_channel - min_channel) > 50)
+    )
+
+    blue_mask = (B > 100) & (B > R + 30) & (B > G + 20)
+
+    yellow_mask = (R > 120) & (G > 100) & (B < 120) & (R > B + 40) & (G > B + 40)
+
+    mask = red_mask | blue_mask | yellow_mask
+    mask = mask.astype(np.uint8) * 255
+
+    # Clean up noise
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    if len(contours) == 0:
+        print(f"No sign-like colored region found in {image_path}. Using full image.")
+        return Image.fromarray(img_rgb)
+
+    # Pick largest colored region
+    largest = max(contours, key=cv2.contourArea)
+    x, y, w, h = cv2.boundingRect(largest)
+
+    pad = 20
+    size = max(w, h) + 2 * pad
+
+    cx = x + w // 2
+    cy = int(y + h * 0.40)   # shift upward to avoid pole
+
+    x1 = cx - size // 2
+    y1 = cy - size // 2
+    x2 = x1 + size
+    y2 = y1 + size
+
+    crop = img_rgb[y1:y2, x1:x2]
+
+    # Reject tiny regions
+    if w * h < 300:
+        print(f"Detected region too small in {image_path}. Using full image.")
+        return Image.fromarray(img_rgb)
+
+    # Add padding around crop
+    pad = 20
+    x1 = max(x - pad, 0)
+    y1 = max(y - pad, 0)
+    x2 = min(x + w + pad, img_rgb.shape[1])
+    y2 = min(y + h + pad, img_rgb.shape[0])
+
+    crop = img_rgb[y1:y2, x1:x2]
+
+    if debug:
+        debug_img = img_rgb.copy()
+        cv2.rectangle(debug_img, (x1, y1), (x2, y2), (0, 255, 0), 3)
+        if debug:
+            base_name = os.path.splitext(os.path.basename(image_path))[0]
+
+            detection_path = os.path.join(DEBUG_DIR, f"{base_name}_detect.jpg")
+            crop_path = os.path.join(DEBUG_DIR, f"{base_name}_crop.jpg")
+
+            debug_img = img_rgb.copy()
+            cv2.rectangle(debug_img, (x1, y1), (x2, y2), (0, 255, 0), 3)
+
+            Image.fromarray(debug_img).save(detection_path)
+            Image.fromarray(crop).save(crop_path)
+
+    return Image.fromarray(crop)
+
+
 def preprocess_image(image_path, device):
     if not os.path.exists(image_path):
         print(f"Error: {image_path} not found.")
         sys.exit(1)
 
-    # Identical preprocessing to Training and FPGA
+    img = crop_sign_region(image_path, debug=True)
+
     transform = transforms.Compose([
         transforms.Resize((64, 64)),
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
-    
-    img = Image.open(image_path).convert('RGB')
-    input_tensor = transform(img).unsqueeze(0).to(device) # Add batch dimension
+
+    input_tensor = transform(img).unsqueeze(0).to(device)
     return input_tensor
 
 

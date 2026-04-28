@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from model import ModifiedLeNet5
+from image_processing_fpga.LeNet5_Phase1.models.model import ModifiedLeNet5
 
 # Output file
 OUTPUT_HEADER = "parameters_64.h"

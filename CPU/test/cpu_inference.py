@@ -5,7 +5,7 @@ import os
 import platform
 from PIL import Image
 import torchvision.transforms as transforms
-from model import ModifiedLeNet5
+from image_processing_fpga.LeNet5_Phase1.models.model import ModifiedLeNet5
 from collections import defaultdict
 import torch.nn.functional as F
 
