@@ -5,7 +5,7 @@ import os
 import platform
 from PIL import Image
 import torchvision.transforms as transforms
-from model import ModifiedLeNet5
+from model_64 import LeNet5_64
 from collections import defaultdict
 import torch.nn.functional as F
 
@@ -13,11 +13,10 @@ import torch.nn.functional as F
 IMAGES_DIR = "./images"
 
 # --- CONFIGURATION ---
-MODEL_PATH = "lenet5_traffic.pth"
+MODEL_PATH = "64_lenet5_traffic.pth"
 IMAGE_PATH = "jacey2.jpg"  # Change this to your image filename
 
 # GTSRB Class Labels
-"""
 CLASSES = {
     0: 'Speed limit (20km/h)', 1: 'Speed limit (30km/h)', 2: 'Speed limit (50km/h)',
     3: 'Speed limit (60km/h)', 4: 'Speed limit (70km/h)', 5: 'Speed limit (80km/h)',
@@ -35,11 +34,6 @@ CLASSES = {
     38: 'Keep right', 39: 'Keep left', 40: 'Roundabout mandatory',
     41: 'End of no passing', 42: 'End of no passing by vehicles over 3.5 metric tons'
 }
-"""
-CLASSES = {
-    0: 'crosswalk', 1: 'speedlimit', 2: 'stop',
-    3: 'trafficlight'
-}
 
 def load_system():
     # Detect System
@@ -48,7 +42,7 @@ def load_system():
 
     # Load Model
     device = torch.device("cpu") # Force CPU for fair comparison
-    model = ModifiedLeNet5().to(device)
+    model = LeNet5_64(num_classes=43).to(device)
     
     if not os.path.exists(MODEL_PATH):
         print(f"Error: {MODEL_PATH} not found. Please place it in this directory.")
@@ -71,7 +65,7 @@ def preprocess_image(image_path, device):
 
     # Identical preprocessing to Training and FPGA
     transform = transforms.Compose([
-        transforms.Resize((32, 32)),
+        transforms.Resize((64, 64)),
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))

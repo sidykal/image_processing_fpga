@@ -1,8 +1,9 @@
-#ifndef LENET_H
-#define LENET_H
+#ifndef TEST_LENET_H
+#define TEST_LENET_H
 
 #include <stdint.h>
-#include <ap_int.h>
+#include <cstdint>
+typedef uint32_t bus_word_t;
 
 //////////////////////////////////////////////////////////////
 // INPUT: 64x64 grayscale
@@ -69,7 +70,6 @@
 //////////////////////////////////////////////////////////////
 // Packed input bus
 //////////////////////////////////////////////////////////////
-typedef ap_uint<32> bus_word_t;
 
 // 1 * 64 * 64 = 4096 int8 values
 // 4096 / 4 = 1024 packed words

@@ -1,6 +1,5 @@
-#include "lenet.h"
+#include "test_lenet.h"
 #include "parameters_int8.h"
-#include <ap_int.h>
 #include <stdint.h>
 
 typedef int32_t acc_t;
@@ -34,7 +33,7 @@ static void unpack_input(bus_word_t input_words[INPUT_WORDS],
         bus_word_t word = input_words[i];
 
         for (int b = 0; b < 4; b++) {
-            int8_t val = (int8_t)((ap_uint<8>)word.range(8*b+7, 8*b));
+            int8_t val = (int8_t)((word >> (8 * b)) & 0xFF);
             input[0][idx / INPUT_W][idx % INPUT_W] = val;
             idx++;
         }

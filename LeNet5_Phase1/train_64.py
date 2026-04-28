@@ -88,6 +88,16 @@ def get_dataloaders():
 
     dataset = RoadSignDataset(IMAGES_DIR, ANNOTATIONS_DIR, transform)
 
+    from collections import Counter
+    labels = []
+    for i in range(len(dataset)):
+        _, label = dataset[i]
+        labels.append(label)
+
+    print("\nClass distribution:", Counter(labels))
+    print("Class mapping:", dataset.class_to_idx)
+    print("="*50)
+
     train_size = int(0.8 * len(dataset))
     test_size = len(dataset) - train_size
     train_set, test_set = torch.utils.data.random_split(dataset, [train_size, test_size])

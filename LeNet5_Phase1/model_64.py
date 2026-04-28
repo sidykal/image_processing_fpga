@@ -36,7 +36,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class LeNet5_64(nn.Module):
-    def __init__(self, num_classes=4):
+    def __init__(self, num_classes=43):
         super(LeNet5_64, self).__init__()
 
         self.conv1 = nn.Conv2d(1, 6, 5)
@@ -44,10 +44,8 @@ class LeNet5_64(nn.Module):
 
         self.conv2 = nn.Conv2d(6, 16, 5)
 
-        # 👇 add third pooling to reach 7x7
         self.pool2 = nn.MaxPool2d(2, 2)
 
-        # 64 → 60 → 30 → 26 → 13 → 7 (with final pooling adjustment)
         self.fc1 = nn.Linear(16 * 6 * 6, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, num_classes)
