@@ -7,12 +7,13 @@ import cv2
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
-from image_processing_fpga.LeNet5_Phase1.models.model_64 import LeNet5_64
+from CPU.models.model_64 import LeNet5_64
 import torch.nn.functional as F
 
 # --- CONFIGURATION ---
-MODEL_PATH = "64_lenet5_traffic.pth"
-
+MODEL_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "weights", "64_lenet5_traffic.pth")
+)
 CLASSES = {
     0: 'Speed limit (20km/h)', 1: 'Speed limit (30km/h)', 2: 'Speed limit (50km/h)',
     3: 'Speed limit (60km/h)', 4: 'Speed limit (70km/h)', 5: 'Speed limit (80km/h)',
