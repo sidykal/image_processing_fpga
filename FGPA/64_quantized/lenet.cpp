@@ -5,9 +5,12 @@
 
 typedef int32_t acc_t;
 
-//////////////////////////////////////////////////////////////
-// Quant helpers
-//////////////////////////////////////////////////////////////
+#define CONV1_SHIFT 11
+#define CONV2_SHIFT 10
+#define FC1_SHIFT 9
+#define FC2_SHIFT 9
+#define FC3_SHIFT 8
+
 static int8_t saturate_int8(acc_t x) {
     if (x > 127)  return 127;
     if (x < -128) return -128;
@@ -19,12 +22,8 @@ static int8_t relu_quant(acc_t x) {
     return saturate_int8(x);
 }
 
-//////////////////////////////////////////////////////////////
-// INPUT UNPACK: 1024 words → 1x64x64
-//////////////////////////////////////////////////////////////
 static void unpack_input(bus_word_t input_words[INPUT_WORDS],
                          int8_t input[INPUT_C][INPUT_H][INPUT_W]) {
-
 #pragma HLS INLINE off
 
     int idx = 0;
@@ -41,9 +40,6 @@ static void unpack_input(bus_word_t input_words[INPUT_WORDS],
     }
 }
 
-//////////////////////////////////////////////////////////////
-// CONV1: 1x64x64 → 6x60x60
-//////////////////////////////////////////////////////////////
 static void conv1(int8_t in[INPUT_C][INPUT_H][INPUT_W],
                   int8_t out[C1_CH][C1_H][C1_W]) {
 
@@ -60,15 +56,12 @@ static void conv1(int8_t in[INPUT_C][INPUT_H][INPUT_W],
                     }
                 }
 
-                out[co][h][w] = relu_quant(sum);
+                out[co][h][w] = relu_quant(sum >> CONV1_SHIFT);
             }
         }
     }
 }
 
-//////////////////////////////////////////////////////////////
-// POOL1: 60x60 → 30x30
-//////////////////////////////////////////////////////////////
 static void pool1(int8_t in[C1_CH][C1_H][C1_W],
                   int8_t out[S1_CH][S1_H][S1_W]) {
 
@@ -91,9 +84,6 @@ static void pool1(int8_t in[C1_CH][C1_H][C1_W],
     }
 }
 
-//////////////////////////////////////////////////////////////
-// CONV2: 6x30x30 → 16x26x26
-//////////////////////////////////////////////////////////////
 static void conv2(int8_t in[S1_CH][S1_H][S1_W],
                   int8_t out[C2_CH][C2_H][C2_W]) {
 
@@ -112,15 +102,12 @@ static void conv2(int8_t in[S1_CH][S1_H][S1_W],
                     }
                 }
 
-                out[co][h][w] = relu_quant(sum);
+                out[co][h][w] = relu_quant(sum >> CONV2_SHIFT);
             }
         }
     }
 }
 
-//////////////////////////////////////////////////////////////
-// POOL2: 26x26 → 13x13
-//////////////////////////////////////////////////////////////
 static void pool2(int8_t in[C2_CH][C2_H][C2_W],
                   int8_t out[S2_CH][S2_H][S2_W]) {
 
@@ -143,9 +130,6 @@ static void pool2(int8_t in[C2_CH][C2_H][C2_W],
     }
 }
 
-//////////////////////////////////////////////////////////////
-// EXTRA POOL: 13x13 → 6x6  (CRITICAL)
-//////////////////////////////////////////////////////////////
 static void pool3(int8_t in[S2_CH][S2_H][S2_W],
                   int8_t out[S3_CH][S3_H][S3_W]) {
 
@@ -168,9 +152,6 @@ static void pool3(int8_t in[S2_CH][S2_H][S2_W],
     }
 }
 
-//////////////////////////////////////////////////////////////
-// FC1: 576 → 120
-//////////////////////////////////////////////////////////////
 static void fc1(int8_t in[S3_CH][S3_H][S3_W],
                 int8_t out[FC1_UNITS]) {
 
@@ -188,13 +169,10 @@ static void fc1(int8_t in[S3_CH][S3_H][S3_W],
             }
         }
 
-        out[o] = relu_quant(sum);
+        out[o] = relu_quant(sum >> FC1_SHIFT);
     }
 }
 
-//////////////////////////////////////////////////////////////
-// FC2: 120 → 84
-//////////////////////////////////////////////////////////////
 static void fc2(int8_t in[FC1_UNITS],
                 int8_t out[FC2_UNITS]) {
 
@@ -205,13 +183,10 @@ static void fc2(int8_t in[FC1_UNITS],
             sum += in[i] * fc2_weights[o][i];
         }
 
-        out[o] = relu_quant(sum);
+        out[o] = relu_quant(sum >> FC2_SHIFT);
     }
 }
 
-//////////////////////////////////////////////////////////////
-// FC3: 84 → 4 (logits)
-//////////////////////////////////////////////////////////////
 static void fc3(int8_t in[FC2_UNITS],
                 int8_t out[OUTPUT_CLASSES]) {
 
@@ -222,13 +197,10 @@ static void fc3(int8_t in[FC2_UNITS],
             sum += in[i] * fc3_weights[o][i];
         }
 
-        out[o] = saturate_int8(sum);
+        out[o] = saturate_int8(sum >> FC3_SHIFT);
     }
 }
 
-//////////////////////////////////////////////////////////////
-// TOP FUNCTION
-//////////////////////////////////////////////////////////////
 void lenet_predict(bus_word_t input_words[INPUT_WORDS],
                    int *predicted_class) {
 
@@ -254,13 +226,12 @@ void lenet_predict(bus_word_t input_words[INPUT_WORDS],
     conv2(s1, c2);
     pool2(c2, s2);
 
-    pool3(s2, s3);  // 👈 required for 6x6
+    pool3(s2, s3);
 
     fc1(s3, f1);
     fc2(f1, f2);
     fc3(f2, f3);
 
-    // Argmax
     int max_id = 0;
     int8_t max_val = f3[0];
 
