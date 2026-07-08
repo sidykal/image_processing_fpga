@@ -25,7 +25,7 @@ def show_transformed_image(tensor):
     img = (img * 0.5 + 0.5) * 255
     img = img.astype('uint8')
 
-    # 🔥 Resize so you can actually SEE it
+    # Resize to see
     img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_NEAREST)
 
     cv2.imshow("Transformed (64x64)", img)
@@ -114,7 +114,6 @@ def run_camera_inference():
                 label = CLASSES.get(pred_id, "Unknown")
                 latency_ms = (end - start) * 1000
 
-                # 🔥 TERMINAL OUTPUT
                 print(f"Prediction: {label}")
                 print(f"Confidence: {confidence:.4f}")
                 print(f"Latency: {latency_ms:.2f} ms")
