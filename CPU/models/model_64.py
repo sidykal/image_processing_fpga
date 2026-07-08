@@ -11,7 +11,7 @@ class LeNet5_64(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
 
-        # 👇 THIS FIXES EVERYTHING FOR ANY INPUT SIZE
+        # any input size
         self.adaptive_pool = nn.AdaptiveAvgPool2d((5, 5))
 
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
@@ -22,7 +22,7 @@ class LeNet5_64(nn.Module):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
 
-        x = self.adaptive_pool(x)   # 👈 forces fixed shape
+        x = self.adaptive_pool(x)   
         x = x.view(x.size(0), -1)
 
         x = F.relu(self.fc1(x))
@@ -54,7 +54,7 @@ class LeNet5_64(nn.Module):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
 
-        x = self.pool2(x)   # 👈 forces final spatial reduction
+        x = self.pool2(x)   
 
         x = x.view(x.size(0), -1)
 
