@@ -156,7 +156,7 @@ def crop_sign_region(image_path, debug=False):
     if w * h < 300:
         print(f"Detected region too small in {image_path}. Using full image.")
         return Image.fromarray(img_rgb)
-
+"""
     # Add padding around crop
     pad = 20
     x1 = max(x - pad, 0)
@@ -165,6 +165,7 @@ def crop_sign_region(image_path, debug=False):
     y2 = min(y + h + pad, img_rgb.shape[0])
 
     crop = img_rgb[y1:y2, x1:x2]
+"""
 
     if debug:
         debug_img = img_rgb.copy()
