@@ -166,7 +166,7 @@ def crop_sign_region(image_path, debug=False):
 
     crop = img_rgb[y1:y2, x1:x2]
 """
-
+"""
     if debug:
         debug_img = img_rgb.copy()
         cv2.rectangle(debug_img, (x1, y1), (x2, y2), (0, 255, 0), 3)
@@ -181,6 +181,7 @@ def crop_sign_region(image_path, debug=False):
 
             Image.fromarray(debug_img).save(detection_path)
             Image.fromarray(crop).save(crop_path)
+"""
 
     return Image.fromarray(crop)
 
